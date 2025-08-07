@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <title>OBIS Nodes Engagement Survey</title>
 
+  <!-- jQuery must be first -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://unpkg.com/survey-core@1.9.109/survey.core.min.js"></script>
+
+  <!-- Only include survey-jquery (which includes core internally) -->
   <script src="https://unpkg.com/survey-jquery@1.9.109/survey.jquery.min.js"></script>
   <link href="https://unpkg.com/survey-core@1.9.109/defaultV2.min.css" rel="stylesheet" />
 
@@ -42,9 +44,10 @@
       ]
     };
 
-    const survey = new Survey.Survey(surveyJSON);
-
-    $("#surveyContainer").Survey({ model: survey });
+    $(document).ready(function () {
+      const survey = new SurveyJQuery.Survey(surveyJSON);
+      $("#surveyContainer").Survey({ model: survey });
+    });
   </script>
 </body>
 </html>
