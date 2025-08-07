@@ -6,7 +6,7 @@
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <!-- SurveyJS for jQuery -->
+  <!-- SurveyJS -->
   <script src="https://unpkg.com/survey-jquery@1.9.109/survey.jquery.min.js"></script>
   <link href="https://unpkg.com/survey-core@1.9.109/defaultV2.min.css" rel="stylesheet" />
 
@@ -27,10 +27,26 @@
 
   <script>
     const roles = [
-      "Chair", "Co-chair", "Vice-chair", "Secretary", "Rapporteur", "Coordinator",
-      "Facilitator", "Member", "Observer", "Student", "Guest", "Funder",
-      "Funded Member", "Advisor", "Supervised Member", "Seconded Member",
-      "Embedded Expert", "Hosted Member", "Liaison", "Technical Expert"
+      { value: "Chair", text: "Chair", tooltip: "Leads the group, chairs meetings, coordinates decisions" },
+      { value: "Co-chair", text: "Co-chair", tooltip: "Shares leadership duties with another Chair" },
+      { value: "Vice-chair", text: "Vice-chair", tooltip: "Supports the Chair and may lead in their absence" },
+      { value: "Secretary", text: "Secretary", tooltip: "Maintains records and documentation for the group" },
+      { value: "Rapporteur", text: "Rapporteur", tooltip: "Summarizes discussions and prepares official reports" },
+      { value: "Coordinator", text: "Coordinator", tooltip: "Manages logistics and communication for the group" },
+      { value: "Facilitator", text: "Facilitator", tooltip: "Supports inclusive and effective discussion, often neutral" },
+      { value: "Member", text: "Member", tooltip: "Participates regularly without additional duties" },
+      { value: "Observer", text: "Observer", tooltip: "Attends group meetings without formal decision-making power" },
+      { value: "Student", text: "Student", tooltip: "Participates in a learning or training capacity" },
+      { value: "Guest", text: "Guest", tooltip: "Invited temporarily for a specific topic or session" },
+      { value: "Funder", text: "Funder", tooltip: "Provides financial support to a group or project" },
+      { value: "Funded Member", text: "Funded Member", tooltip: "Participates in a group with financial support from another organization" },
+      { value: "Advisor", text: "Advisor", tooltip: "Provides strategic, policy, or technical advice to the group" },
+      { value: "Supervised Member", text: "Supervised Member", tooltip: "Acts under the direction or oversight of a parent institution" },
+      { value: "Seconded Member", text: "Seconded Member", tooltip: "Temporarily assigned to the group by another organization" },
+      { value: "Embedded Expert", text: "Embedded Expert", tooltip: "Hosted within the group but representing another entity" },
+      { value: "Hosted Member", text: "Hosted Member", tooltip: "Operates within the group's facilities or organizational structure" },
+      { value: "Liaison", text: "Liaison", tooltip: "Represents another organization's interests within the group" },
+      { value: "Technical Expert", text: "Technical Expert", tooltip: "Provides subject matter expertise on a specific topic or domain" }
     ];
 
     const orgs = [
@@ -93,16 +109,11 @@
               name: "obisNode",
               title: "OBIS Node Affiliation",
               isRequired: true,
-              choices: [
-                "OBIS Canada", "OBIS SEAMAP", "OBIS Japan", "OBIS Africa",
-                "EurOBIS", "OBIS-USA", "OBIS Chile", "OBIS India"
-              ]
-              // Will re-enable API loading later
-              // choicesByUrl: {
-              //   url: "https://api.obis.org/v3/node",
-              //   valueName: "institution",
-              //   path: "results"
-              // }
+              choicesByUrl: {
+                url: "https://api.obis.org/v3/node",
+                path: "results",
+                valueName: "institution"
+              }
             }
           ]
         },
