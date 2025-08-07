@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OBIS Nodes Engagement Survey</title>
+  <script src="https://unpkg.com/survey-core@1.9.109/survey.core.min.js"></script>
+  <script src="https://unpkg.com/survey-creator-core@1.9.109/survey-creator-core.min.js"></script>
+  <script src="https://unpkg.com/survey-jquery@1.9.109/survey.jquery.min.js"></script>
+  <link href="https://unpkg.com/survey-core@1.9.109/defaultV2.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+    .sv_main {
+      max-width: 900px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <h2>OBIS Nodes Engagement Survey</h2>
+  <div id="surveyContainer"></div>
+
+  <script>
+    const roles = [
+      "Chair", "Co-chair", "Vice-chair", "Secretary", "Rapporteur", "Coordinator",
+      "Facilitator", "Member", "Observer", "Student", "Guest", "Funder",
+      "Funded Member", "Advisor", "Supervised Member", "Seconded Member",
+      "Embedded Expert", "Hosted Member", "Liaison", "Technical Expert"
+    ];
+
+    const surveyJSON = {
+      title: "OBIS Nodes Engagement Survey",
+      showProgressBar: "top",
+      pages: [
+        {
+          name: "intro",
+          elements: [
+            { type: "text", name: "name", title: "Your name", isRequired: true },
+            { type: "text", name: "oceanExpertID", title: "OceanExpert ID (if known)" },
+            {
+              type: "dropdown",
+              name: "obisNode",
+              title: "OBIS Node Affiliation",
+              isRequired: true,
+              choicesByUrl: {
+                url: "https://api.obis.org/v3/node",
+                valueName: "institution",
+                path: "results"
+              }
+            }
+          ]
+        },
+        {
+          name: "gbif",
+          title: "Engagement with GBIF",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "gbif_involved",
+              title: "Do you work with GBIF?",
+              isRequired: true,
+              choices: ["Yes", "No"]
+            },
+            {
+              type: "radiogroup",
+              name: "gbif_level",
+              visibleIf: "{gbif_involved} = 'Yes'",
+              title: "Which statement best describes your involvement?",
+              choices: [
+                "I actively interact with this group (participate on committees, receive funding, etc.)",
+                "I passively interact with this group (follow news, mailing list, etc.)"
+              ]
+            },
+            {
+              type: "matrixdynamic",
+              name: "gbif_engagements",
+              title: "Please describe any active engagements with GBIF",
+              visibleIf: "{gbif_involved} = 'Yes'",
+              columns: [
+                {
+                  name: "group",
+                  title: "Name of group/forum",
+                  cellType: "text"
+                },
+                {
+                  name: "role",
+                  title: "Description of interaction",
+                  cellType: "dropdown",
+                  choices: roles
+                }
+              ],
+              rowCount: 1,
+              addRowText: "Add another engagement"
+            },
+            {
+              type: "comment",
+              name: "gbif_comments",
+              title: "Any other comments on your interaction with GBIF?"
+            }
+          ]
+        },
+        {
+          name: "otherGroups",
+          title: "Other Groups",
+          elements: [
+            {
+              type: "matrixdynamic",
+              name: "other_engagements",
+              title: "Describe interactions with other groups not listed above",
+              columns: [
+                { name: "group", title: "Name of group/forum", cellType: "text" },
+                { name: "role", title: "Description of interaction", cellType: "dropdown", choices: roles }
+              ],
+              rowCount: 1,
+              addRowText: "Add another engagement"
+            },
+            {
+              type: "comment",
+              name: "other_comments",
+              title: "Any additional comments?"
+            }
+          ]
+        }
+      ]
+    };
+
+    const survey = new Survey.Survey(surveyJSON);
+    survey.onComplete.add(function (sender) {
+      fetch("https://script.google.com/macros/s/PASTE_YOUR_SCRIPT_ID_HERE/exec", {
+        method: "POST",
+        body: JSON.stringify(sender.data),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(response => alert("Thank you! Your response has been submitted."))
+      .catch(error => alert("There was an error submitting the form."));
+    });
+
+    $("#surveyContainer").Survey({ model: survey });
+  </script>
+</body>
+</html>
