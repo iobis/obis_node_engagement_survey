@@ -109,13 +109,8 @@
               name: "obisNode",
               title: "OBIS Node Affiliation",
               isRequired: true,
-              choicesByUrl: {
-                url: "https://api.obis.org/v3/node",
-                path: "results",
-                valueName: "institution",
-                titleName: "institution"
-              }
-
+              choices: []  // will be populated manually
+            }
             }
           ]
         },
@@ -152,6 +147,18 @@
         console.log("Survey results:", sender.data);
         alert("Thank you! Your response has been submitted.");
       });
+
+    fetch("https://api.obis.org/v3/node")
+      .then((res) => res.json())
+      .then((data) => {
+        const nodeChoices = data.results.map((node) => ({
+          value: node.institution,
+          text: `${node.institution}${node.country ? ' (' + node.country + ')' : ''}`
+        })).sort((a, b) => a.text.localeCompare(b.text));
+
+        survey.getQuestionByName("obisNode").choices = nodeChoices;
+      });
+
 
       $("#surveyContainer").Survey({ model: survey });
     });
