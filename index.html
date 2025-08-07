@@ -145,7 +145,7 @@
       const survey = new Survey.Model(surveyJSON);
 
       survey.onComplete.add(function (sender) {
-        fetch("https://script.google.com/a/macros/formeldataservices.com/s/AKfycbz6CKltIxXWnfJfQBKZL9sG3JB5-2uBkW0ixglf8zuaHJI-O1jkBITJIbko-0CcfA1l/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbz6CKltIxXWnfJfQBKZL9sG3JB5-2uBkW0ixglf8zuaHJI-O1jkBITJIbko-0CcfA1l/exec", {
           method: "POST",
           body: JSON.stringify(sender.data),
           headers: {
