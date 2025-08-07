@@ -76,17 +76,16 @@
           ]
         },
         {
-          type: "matrixdynamic",
-          name: `${org}_engagements`,
-          title: "Please describe any active engagements",
-          visibleIf: `{${org}_involved} = 'Yes'`,
-          columns: [
-            { name: "group", title: "Name of group/forum", cellType: "text" },
-            { name: "role", title: "Description of interaction", cellType: "dropdown", choices: roles }
-          ],
-          rowCount: 1,
-          addRowText: "Add another engagement"
-        },
+            type: "matrixdynamic",
+            name: "other_engagements",
+            title: "Describe interactions with other groups not listed above",
+            columns: [
+              { name: "role", title: "Type of Interaction", cellType: "dropdown", choices: roles },
+              { name: "group", title: "Short Description", cellType: "text" }
+            ],
+            rowCount: 1,
+            addRowText: "Add another engagement"
+          },
         {
           type: "comment",
           name: `${org}_comments`,
@@ -94,6 +93,7 @@
         }
       ]
     });
+
 
     const surveyJSON = {
       title: "OBIS Nodes Engagement Survey",
@@ -109,9 +109,10 @@
               name: "obisNode",
               title: "OBIS Node Affiliation",
               isRequired: true,
-              choices: []  // will be populated manually
+              colCount: 1,
+              choices: []  // We'll populate this later
             }
-            }
+
           ]
         },
         ...orgs.map(engagementPanel),
@@ -140,28 +141,56 @@
       ]
     };
 
-    $(document).ready(function () {
+   $(document).ready(function () {
       const survey = new Survey.Model(surveyJSON);
 
       survey.onComplete.add(function (sender) {
-        console.log("Survey results:", sender.data);
-        alert("Thank you! Your response has been submitted.");
+        fetch("https://script.google.com/macros/s/AKfycbz6CKltIxXWnfJfQBKZL9sG3JB5-2uBkW0ixglf8zuaHJI-O1jkBITJIbko-0CcfA1l/exec", {
+          method: "POST",
+          body: JSON.stringify(sender.data),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            alert("✅ Thank you! Your response has been submitted.");
+          } else {
+            alert("❌ There was a problem submitting your response.");
+          }
+        })
+        .catch(error => {
+          console.error("POST to Google Sheets failed:", error);
+          alert("❌ There was a network error.");
+        });
       });
 
-    fetch("https://api.obis.org/v3/node")
-      .then((res) => res.json())
-      .then((data) => {
-        const nodeChoices = data.results.map((node) => ({
-          value: node.institution,
-          text: `${node.institution}${node.country ? ' (' + node.country + ')' : ''}`
-        })).sort((a, b) => a.text.localeCompare(b.text));
 
-        survey.getQuestionByName("obisNode").choices = nodeChoices;
-      });
-
-
+      // Render the survey first
       $("#surveyContainer").Survey({ model: survey });
+
+      // Then fetch and populate the OBIS nodes
+      fetch("https://api.obis.org/v3/node")
+      .then(res => res.json())
+      .then(data => {
+        
+        const nodeChoices = data.results.map(node => ({
+        value: node.name,
+        text: node.name
+      })).sort((a, b) => a.text.localeCompare(b.text));  // ✅ Sort by display text
+
+        const obisQuestion = survey.getQuestionByName("obisNode");
+        if (obisQuestion) {
+          obisQuestion.choices = nodeChoices;
+          console.log("✅ OBIS dropdown populated:", nodeChoices);
+        } else {
+          console.warn("❌ Could not find the 'obisNode' question.");
+        }
+      });
+  
     });
+
+
   </script>
 </body>
 </html>
