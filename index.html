@@ -27,26 +27,14 @@
 
   <script>
     const roles = [
-      { value: "Chair", text: "Chair", tooltip: "Leads the group, chairs meetings, coordinates decisions" },
-      { value: "Co-chair", text: "Co-chair", tooltip: "Shares leadership duties with another Chair" },
-      { value: "Vice-chair", text: "Vice-chair", tooltip: "Supports the Chair and may lead in their absence" },
-      { value: "Secretary", text: "Secretary", tooltip: "Maintains records and documentation for the group" },
-      { value: "Rapporteur", text: "Rapporteur", tooltip: "Summarizes discussions and prepares official reports" },
-      { value: "Coordinator", text: "Coordinator", tooltip: "Manages logistics and communication for the group" },
-      { value: "Facilitator", text: "Facilitator", tooltip: "Supports inclusive and effective discussion, often neutral" },
-      { value: "Member", text: "Member", tooltip: "Participates regularly without additional duties" },
-      { value: "Observer", text: "Observer", tooltip: "Attends group meetings without formal decision-making power" },
-      { value: "Student", text: "Student", tooltip: "Participates in a learning or training capacity" },
-      { value: "Guest", text: "Guest", tooltip: "Invited temporarily for a specific topic or session" },
-      { value: "Funder", text: "Funder", tooltip: "Provides financial support to a group or project" },
-      { value: "Funded Member", text: "Funded Member", tooltip: "Participates in a group with financial support from another organization" },
-      { value: "Advisor", text: "Advisor", tooltip: "Provides strategic, policy, or technical advice to the group" },
-      { value: "Supervised Member", text: "Supervised Member", tooltip: "Acts under the direction or oversight of a parent institution" },
-      { value: "Seconded Member", text: "Seconded Member", tooltip: "Temporarily assigned to the group by another organization" },
-      { value: "Embedded Expert", text: "Embedded Expert", tooltip: "Hosted within the group but representing another entity" },
-      { value: "Hosted Member", text: "Hosted Member", tooltip: "Operates within the group's facilities or organizational structure" },
-      { value: "Liaison", text: "Liaison", tooltip: "Represents another organization's interests within the group" },
-      { value: "Technical Expert", text: "Technical Expert", tooltip: "Provides subject matter expertise on a specific topic or domain" }
+      { value: "Leadership", text: "Leadership (e.g.  Chair, Co-chair, Vice-chair)", tooltip: "Chair, Co-chair, Vice-chair" },
+      { value: "Administrative Support", text: "Administrative Support (e.g. Secretary, Coordinator)", tooltip: "Secretary, Coordinator" },
+      { value: "Active Member", text: "Active Member (Regular participating member)", tooltip: "Regular participating member" },
+      { value: "Observer", text: "Observer (Attends but limited participation)", tooltip: "Attends but limited participation" },
+      { value: "Expert/Advisor", text: "Expert/Advisor (Provides specialized knowledge)", tooltip: "Provides specialized knowledge" },
+      { value: "Student/Trainee", text: "Student/Trainee (Learning capacity)", tooltip: "Learning capacity" },
+      { value: "Liaison", text: "Liaison (Represents another organization)", tooltip: "Represents another organization" },
+      { value: "Financial Stakeholder", text: "Financial Stakeholder (Receives or provides funding for participation)", tooltip: "Receives or provides funding for participation" }
     ];
 
     const orgs = [
@@ -74,17 +62,23 @@
           name: `${org}_engagements`,
           title: "Please describe any active engagements",
           visibleIf: `{${org}_level} = 'I actively interact with this group (participate on committees, receive funding, etc.)'`,
+          isRequired: true,
+          minRowCount: 1,
           columns: [
             {
               name: "role",
               title: "Type of Interaction",
               cellType: "dropdown",
-              choices: [...roles] // Create a new array copy for each organization
+              choices: JSON.parse(JSON.stringify(roles)),
+              isRequired: true,
+              requiredErrorText: "Please select a type of interaction"
             },
             {
               name: "group",
               title: "Short Description",
-              cellType: "text"
+              cellType: "text",
+              isRequired: true,
+              requiredErrorText: "Please provide a description"
             }
           ],
           rowCount: 1,
@@ -108,7 +102,19 @@
           name: "basic_info",
           elements: [
             { type: "text", name: "name", title: "Your name", isRequired: true },
-            { type: "text", name: "oceanExpertID", title: "OceanExpert ID", description: "Example: https://oceanexpert.org/expert/54167" },
+            {
+              type: "text",
+              name: "oceanExpertOrOrcid",
+              title: "OceanExpert ID or ORCID",
+              placeholder: "https://oceanexpert.org/expert/12345 or https://orcid.org/0000-0000-0000-0000",
+              validators: [
+                {
+                  type: "regex",
+                  text: "Please enter a valid OceanExpert or ORCID URL",
+                  regex: "^https://(oceanexpert\\.org/expert/\\d+|orcid\\.org/\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\dX])$"
+                }
+              ]
+            },
             {
               type: "dropdown",
               name: "obisNode",
@@ -128,10 +134,10 @@
             {
               type: "matrixdynamic",
               name: "other_engagements",
-              title: "Describe interactions with other groups not listed above",
+              title: "Describe interactions with any additional groups that you feel the OBIS community should be aware of",
               columns: [
                 { name: "role", title: "Type of Interaction", cellType: "dropdown", choices: [...roles] }, // Create a new array copy here too
-                { name: "group", title: "Short Description", cellType: "text" }
+                { name: "group", title: "Short Description (e.g. IPBES Task Force on Indigenous and Local Knowledge)", cellType: "text" }
               ],
               rowCount: 1,
               addRowText: "Add another engagement"
