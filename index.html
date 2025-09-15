@@ -50,7 +50,7 @@
     ];
 
     const orgs = [
-      "GBIF", "TDWG", "GEO BON", "GOOS", "ODIS", "UNEP", "IOC", "CBD"
+      "GBIF", "TDWG", "GEO BON", "GOOS"
     ];
 
     const engagementPanel = (org) => ({
@@ -59,37 +59,42 @@
       title: `Engagement with ${org}`,
       elements: [
         {
-          type: "radiogroup",
-          name: `${org}_involved`,
-          title: `Do you work with ${org}?`,
-          isRequired: true,
-          choices: ["Yes", "No"]
-        },
-        {
-          type: "radiogroup",
+          type: "dropdown",
           name: `${org}_level`,
-          visibleIf: `{${org}_involved} = 'Yes'`,
-          title: "Which statement best describes your involvement?",
+          title: `Describe your involvement with ${org}:`,
+          isRequired: true,
           choices: [
-            "I actively interact with this group (participate on committees, receive funding, etc.)",
-            "I passively interact with this group (follow news, mailing list, etc.)"
+            "I do not work with this group",
+            "I passively interact with this group (follow news, mailing list, etc.)",
+            "I actively interact with this group (participate on committees, receive funding, etc.)"
           ]
         },
         {
-            type: "matrixdynamic",
-            name: "other_engagements",
-            title: "Describe interactions with other groups not listed above",
-            columns: [
-              { name: "role", title: "Type of Interaction", cellType: "dropdown", choices: roles },
-              { name: "group", title: "Short Description", cellType: "text" }
-            ],
-            rowCount: 1,
-            addRowText: "Add another engagement"
-          },
+          type: "matrixdynamic",
+          name: `${org}_engagements`,
+          title: "Please describe any active engagements",
+          visibleIf: `{${org}_level} = 'I actively interact with this group (participate on committees, receive funding, etc.)'`,
+          columns: [
+            {
+              name: "role",
+              title: "Type of Interaction",
+              cellType: "dropdown",
+              choices: [...roles] // Create a new array copy for each organization
+            },
+            {
+              name: "group",
+              title: "Short Description",
+              cellType: "text"
+            }
+          ],
+          rowCount: 1,
+          addRowText: "Add another engagement"
+        },
         {
           type: "comment",
           name: `${org}_comments`,
-          title: "Any additional comments?"
+          title: "Any additional comments?",
+          visibleIf: `{${org}_level} = 'I actively interact with this group (participate on committees, receive funding, etc.)'`
         }
       ]
     });
@@ -103,7 +108,7 @@
           name: "basic_info",
           elements: [
             { type: "text", name: "name", title: "Your name", isRequired: true },
-            { type: "text", name: "oceanExpertID", title: "OceanExpert ID (if known)" },
+            { type: "text", name: "oceanExpertID", title: "OceanExpert ID", description: "Example: https://oceanexpert.org/expert/54167" },
             {
               type: "dropdown",
               name: "obisNode",
@@ -125,8 +130,8 @@
               name: "other_engagements",
               title: "Describe interactions with other groups not listed above",
               columns: [
-                { name: "group", title: "Name of group/forum", cellType: "text" },
-                { name: "role", title: "Description of interaction", cellType: "dropdown", choices: roles }
+                { name: "role", title: "Type of Interaction", cellType: "dropdown", choices: [...roles] }, // Create a new array copy here too
+                { name: "group", title: "Short Description", cellType: "text" }
               ],
               rowCount: 1,
               addRowText: "Add another engagement"
@@ -145,12 +150,12 @@
       const survey = new Survey.Model(surveyJSON);
 
       survey.onComplete.add(function (sender) {
-        fetch("https://script.google.com/macros/s/AKfycbz6CKltIxXWnfJfQBKZL9sG3JB5-2uBkW0ixglf8zuaHJI-O1jkBITJIbko-0CcfA1l/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbzR8dfv3oU_uoR7ObFmwckCtmIG71mLj-cKbw60GmvBmzj_LpvIEdg90DNs5tF55DyF/exec", {
           method: "POST",
-          body: JSON.stringify(sender.data),
           headers: {
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify(sender.data)
         })
         .then(response => {
           if (response.ok) {
@@ -164,7 +169,6 @@
           alert("❌ There was a network error.");
         });
       });
-
 
       // Render the survey first
       $("#surveyContainer").Survey({ model: survey });
