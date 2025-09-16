@@ -15,11 +15,37 @@
       font-family: Arial, sans-serif;
       padding: 2rem;
     }
-    .sv_main {
-      max-width: 900px;
-      margin: auto;
+
+    /* Force container width */
+    .sv_main,
+    .sv-root,
+    #surveyContainer,
+    .sv-container-modern {
+      max-width: 900px !important;
+      width: 100% !important;
+      margin: 0 auto !important;
+      box-sizing: border-box !important;
     }
-  </style>
+
+    /* Prevent full-width behavior */
+    .sv-root .sv-container-modern .sv-body {
+      max-width: none !important;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 920px) {
+      body {
+        padding: 1rem;
+      }
+      
+      .sv_main,
+      .sv-root,
+      #surveyContainer,
+      .sv-container-modern {
+        padding: 0 15px !important;
+      }
+    }
+    </style>
 </head>
 <body>
   <h2>OBIS Nodes Engagement Survey</h2>
@@ -34,7 +60,8 @@
       { value: "Expert/Advisor", text: "Expert/Advisor (Provides specialized knowledge)", tooltip: "Provides specialized knowledge" },
       { value: "Student/Trainee", text: "Student/Trainee (Learning capacity)", tooltip: "Learning capacity" },
       { value: "Liaison", text: "Liaison (Represents another organization)", tooltip: "Represents another organization" },
-      { value: "Financial Stakeholder", text: "Financial Stakeholder (Receives or provides funding for participation)", tooltip: "Receives or provides funding for participation" }
+      { value: "Financial Stakeholder", text: "Financial Stakeholder (Receives or provides funding for participation)", tooltip: "Receives or provides funding for participation" },
+      { value: "Project Partner", text: "Project Partner (named collaborator on specific projects or initiatives)", tooltip: "named collaborator on specific projects or initiatives" }
     ];
 
     const orgs = [
@@ -53,36 +80,36 @@
           isRequired: true,
           choices: [
             "I do not work with this group",
-            "I passively interact with this group (follow news, mailing list, etc.)",
+            "I passively interact with this group (use services, follow news, mailing list, etc.)",
             "I actively interact with this group (participate on committees, receive funding, etc.)"
           ]
         },
         {
-          type: "matrixdynamic",
+          type: "paneldynamic",
           name: `${org}_engagements`,
-          title: "Please describe any active engagements",
+          title: "Please describe your active engagements",
           visibleIf: `{${org}_level} = 'I actively interact with this group (participate on committees, receive funding, etc.)'`,
-          isRequired: true,
-          minRowCount: 1,
-          columns: [
+          templateElements: [
             {
-              name: "role",
-              title: "Type of Interaction",
-              cellType: "dropdown",
-              choices: JSON.parse(JSON.stringify(roles)),
-              isRequired: true,
-              requiredErrorText: "Please select a type of interaction"
+              type: "comment",
+              name: "description",
+              title: "Short Description of Engagement",
+              placeholder: "e.g., Marine Biodiversity Working Group",
+              isRequired: true
             },
             {
-              name: "group",
-              title: "Short Description",
-              cellType: "text",
-              isRequired: true,
-              requiredErrorText: "Please provide a description"
+              type: "dropdown",
+              name: "role",
+              title: "Your Role",
+              description: "choose the option that best describes your major role in the engagement",
+              choices: JSON.parse(JSON.stringify(roles)),
+              isRequired: true
             }
           ],
-          rowCount: 1,
-          addRowText: "Add another engagement"
+          panelCount: 1,
+          minPanelCount: 1,
+          panelAddText: "Add another engagement",
+          panelRemoveText: "Remove engagement"
         },
         {
           type: "comment",
@@ -103,27 +130,39 @@
           elements: [
             { type: "text", name: "name", title: "Your name", isRequired: true },
             {
-              type: "text",
-              name: "oceanExpertOrOrcid",
-              title: "OceanExpert ID or ORCID",
-              placeholder: "https://oceanexpert.org/expert/12345 or https://orcid.org/0000-0000-0000-0000",
-              validators: [
-                {
-                  type: "regex",
-                  text: "Please enter a valid OceanExpert or ORCID URL",
-                  regex: "^https://(oceanexpert\\.org/expert/\\d+|orcid\\.org/\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\dX])$"
-                }
-              ]
-            },
-            {
               type: "dropdown",
               name: "obisNode",
               title: "OBIS Node Affiliation",
               isRequired: true,
               colCount: 1,
               choices: []  // We'll populate this later
+            },
+            {
+              type: "text",
+              name: "oceanExpertID",
+              title: "OceanExpert ID",
+              description: "Example: https://oceanexpert.org/expert/54167",
+              validators: [
+                {
+                  type: "regex",
+                  text: "Please enter a valid OceanExpert URL",
+                  regex: "^https://oceanexpert\\.org/expert/\\d+$"
+                }
+              ]
+            },
+            {
+              type: "text",
+              name: "orcid",
+              title: "ORCID",
+              description: "Example: https://orcid.org/0000-0000-0000-0000",
+              validators: [
+                {
+                  type: "regex",
+                  text: "Please enter a valid ORCID URL",
+                  regex: "^https://orcid\\.org/\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\dX]$"
+                }
+              ]
             }
-
           ]
         },
         ...orgs.map(engagementPanel),
