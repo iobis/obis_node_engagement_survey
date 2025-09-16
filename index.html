@@ -90,16 +90,16 @@
           html: getOrgLink(org)
         },
         {
-          type: "dropdown",
-          name: `${org}_level`,
-          title: `Describe your involvement with ${org}:`,
-          isRequired: true,
-          choices: [
-            "I do not work with this group",
-            "I passively interact with this group (follow news, mailing list, etc.)",
-            "I actively interact with this group (participate on committees, receive funding, etc.)"
-          ]
-        },
+        type: "radiogroup",
+        name: `${org}_level`,
+        title: `Describe your involvement with ${org}:`,
+        isRequired: true,
+        choices: [
+          "I do not work with this group",
+          "I passively interact with this group (use services and infrastructure, follow news, mailing list, etc.)",
+          "I actively interact with this group (participate on committees, receive funding, etc.)"
+        ]
+      },
         {
           type: "paneldynamic",
           name: `${org}_engagements`,
