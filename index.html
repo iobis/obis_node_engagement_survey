@@ -59,6 +59,7 @@
       { value: "Observer", text: "Observer (Attends but limited participation)", tooltip: "Attends but limited participation" },
       { value: "Expert/Advisor", text: "Expert/Advisor (Provides specialized knowledge)", tooltip: "Provides specialized knowledge" },
       { value: "Student/Trainee", text: "Student/Trainee (Learning capacity)", tooltip: "Learning capacity" },
+      { value: "Trainer", text: "Trainer (Teacher)", tooltip: "Teacher" },
       { value: "Liaison", text: "Liaison (Represents another organization)", tooltip: "Represents another organization" },
       { value: "Financial Stakeholder", text: "Financial Stakeholder (Receives or provides funding for participation)", tooltip: "Receives or provides funding for participation" },
       { value: "Project Partner", text: "Project Partner (named collaborator on specific projects or initiatives)", tooltip: "named collaborator on specific projects or initiatives" }
@@ -68,11 +69,26 @@
       "GBIF", "TDWG", "GEO BON", "GOOS"
     ];
 
+    const getOrgLink = (org) => {
+      const orgLinks = {
+        "GBIF": "Visit <a href='https://www.gbif.org' target='_blank'>GBIF website</a>",
+        "TDWG": "Visit <a href='https://www.tdwg.org' target='_blank'>TDWG website</a>", 
+        "GEO BON": "Visit <a href='https://geobon.org' target='_blank'>GEO BON website</a>",
+        "GOOS": "Visit <a href='https://www.goosocean.org' target='_blank'>GOOS website</a>"
+      };
+      return orgLinks[org] || "";
+    };
+      
     const engagementPanel = (org) => ({
       type: "panel",
       name: `panel_${org}`,
       title: `Engagement with ${org}`,
       elements: [
+        {
+          type: "html",
+          name: `${org}_link`,
+          html: getOrgLink(org)
+        },
         {
           type: "dropdown",
           name: `${org}_level`,
@@ -80,7 +96,7 @@
           isRequired: true,
           choices: [
             "I do not work with this group",
-            "I passively interact with this group (use services, follow news, mailing list, etc.)",
+            "I passively interact with this group (follow news, mailing list, etc.)",
             "I actively interact with this group (participate on committees, receive funding, etc.)"
           ]
         },
@@ -171,15 +187,29 @@
           title: "Other Groups",
           elements: [
             {
-              type: "matrixdynamic",
+              type: "paneldynamic",
               name: "other_engagements",
               title: "Describe interactions with any additional groups that you feel the OBIS community should be aware of",
-              columns: [
-                { name: "role", title: "Type of Interaction", cellType: "dropdown", choices: [...roles] }, // Create a new array copy here too
-                { name: "group", title: "Short Description (e.g. IPBES Task Force on Indigenous and Local Knowledge)", cellType: "text" }
+              templateElements: [
+                {
+                  type: "comment",
+                  name: "group",
+                  title: "Group Name and Short Description of Engagement",
+                  placeholder: "e.g., IPBES Task Force on Indigenous and Local Knowledge",
+                  isRequired: true
+                },
+                {
+                  type: "dropdown",
+                  name: "role",
+                  title: "Your Role",
+                  choices: JSON.parse(JSON.stringify(roles)),
+                  isRequired: true
+                }
               ],
-              rowCount: 1,
-              addRowText: "Add another engagement"
+              panelCount: 1,
+              minPanelCount: 0,
+              panelAddText: "Add another engagement",
+              panelRemoveText: "Remove engagement"
             },
             {
               type: "comment",
